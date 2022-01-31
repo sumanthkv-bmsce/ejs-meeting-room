@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;900&display=swap');
+
+*, body {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+
+}
+
+html, body {
+    height: 100%;
+    background-color: #152733;
+    overflow: hidden;
+    /*font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;*/
+
+}
+
+#h2_
+{
+	/*margin: auto;*/
+	margin-left: 35%;
+	margin-bottom: 5%;
+}
+
+.Reg_form
+{
+	border:5px solid white;
+	margin-top: 25%;
+	padding:5%;
+	padding-top: 1%;
+	color: #FFFFFF;
+}
+
+.drop_down
+{
+	color:#8d8d8d;
+	border-radius: 5px;
+	width:100px;
+	margin-left:10px;
+	margin-bottom:17px;
+}
+
+.reg
+{
+	color:white;
+	margin-left: 5%;
+}
+
+#space1
+{
+	margin-left: 30%;
+	font-size: 16px;
+}
+
+#space2
+{
+	margin-left: 30%;
+	font-size: 16px;
+}
+
+#Button
+{
+	margin-left:39%;
+}

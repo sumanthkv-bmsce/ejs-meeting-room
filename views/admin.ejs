@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Home</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/admin.css">
+
+	<script type="text/javascript">
+
+		function btnToUpdate(event,val) {
+			
+			event.preventDefault();
+			var ID = $(val).attr('value')
+			$.ajax({
+				type: 'POST',
+				url: '/getItemData',
+				data: {
+					"ID":ID
+				},
+				dataType: "json",
+				success: function(response){
+
+					},
+					error: function() {}
+				})
+
+			document.getElementById("MoveToPage").click();
+
+		}
+
+		function populate() {
+
+		$.ajax({
+			type: 'GET',
+			url: '/getAdminContents',
+			dataType: "json",
+			success: function(response){
+					$("#contents").empty()
+					$("#contents").css({"height":"550px","overflow":"hidden","overflow-y":"scroll"});
+					var results = response.Success.sort((a,b)=>{
+						var x = a.UTC;
+						var y = b.UTC;
+
+						return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+					})
+
+					for(var resp in results) {
+							
+						var temp = `<br><div><div><strong>Location :</strong> ${results[resp].locationName} <br></div>
+									<div><strong>Date :</strong> ${results[resp].Date} <br></div>
+									<div><strong>Start Time</strong> : ${results[resp].StartTime}<br></div>
+									<div><strong>End Time :</strong> ${results[resp].EndTime}<br></div>
+									<div><strong>Purpose :</strong> ${results[resp].Purpose}<br></div>
+									<div><strong>Number of people :</strong> ${results[resp].NumberOfPeople}<br></div>
+									<div><strong>Cost :</strong> ${results[resp].Cost}<br></div>
+									<div><strong>Status : </strong>${results[resp].Status}<br></div>
+									<div><button class="btn btn-primary" id="btn_click" value="${results[resp]._id}" onclick = "btnToUpdate(event,this)">Click To Update</button></div>
+									</div><br><br>`
+
+							$('#contents').append(temp);
+						}
+
+					
+				},
+				error: function() {}
+			})
+
+		}
+
+		function checkFun() {
+
+			var location = document.getElementById("filter").value;
+			if(location == "All") {
+				return populate()
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: '/getAdminFilteredLocationData',
+				data: {
+					"location": location
+				},
+				dataType: "json",
+				success: function(response){
+					//alert("a");
+					$("#contents").empty()
+						var results = response.Success.sort((a,b)=>{
+							var x = a.UTC;
+							var y = b.UTC;
+
+							return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+						})
+
+						for(var resp in results) {
+							
+							var temp = `<br><div><div><strong>Location :</strong> ${results[resp].locationName} <br></div>
+									<div><strong>Date :</strong> ${results[resp].Date} <br></div>
+									<div><strong>Start Time</strong> : ${results[resp].StartTime}<br></div>
+									<div><strong>End Time :</strong> ${results[resp].EndTime}<br></div>
+									<div><strong>Purpose :</strong> ${results[resp].Purpose}<br></div>
+									<div><strong>Number of people :</strong> ${results[resp].NumberOfPeople}<br></div>
+									<div><strong>Cost :</strong> ${results[resp].Cost}<br></div>
+									<div><strong>Status : </strong>${results[resp].Status}<br></div>
+									<div><button class="btn btn-primary" id="btn_click" value="${results[resp]._id}" onclick = "btnToUpdate(event,this)">Click To Update</button></div>
+									</div><br><br>`
+
+							$('#contents').append(temp);
+						}
+
+						
+					},
+					error: function() {}
+				})
+
+		}
+
+		$(document).ready(function(){
+
+			populate()
+
+		});
+
+	</script>
+
+</head>
+<body>
+	<div class="col-md-4 col-md-offset-4">
+		<div id="contents">
+			
+		</div>
+
+		<div id="alignfilter">
+			<label for="location">Select location: </label>
+			<select name="filter" id="filter" onchange="checkFun()" required>
+				<option value="All" selected>All</option>
+				<option value="Bangalore">Bangalore</option>
+				<option value="Delhi">Delhi</option>
+				<option value="Mumbai">Mumbai</option>
+			</select>
+		</div>
+		<br>
+		<a id = "MoveToPage" href = "/getItemData"></a>
+		<div class="abc">
+			<a href="/logout">Logout</a>
+		</div>
+	</div>
+</body>
+</html>

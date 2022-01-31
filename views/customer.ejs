@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Home</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/customer.css">
+
+	<script type="text/javascript">
+
+		function copyURl(val) {
+
+			var requestID = $(val).attr('value')
+			var aux = document.createElement("input");
+
+			aux.setAttribute("value", `https://ejs-meeting-room.herokuapp.com/requests/${requestID}`);
+
+			document.body.appendChild(aux);
+
+			aux.select();
+
+			document.execCommand("copy");
+
+			document.body.removeChild(aux);
+			
+			alert("Copied to clipboard ")
+
+		}
+		
+		function funcToPopulateMyRequests() {
+
+			$("#tabcontent").find('*').not('.labelForLoc').remove();		
+			// alert("gello")
+
+			var location = document.getElementById("FilterForRequests").value
+			$.ajax({
+				type: 'GET',
+				url: '/getCurrentUserRequests',
+				dataType: "json",
+				success: function(response){
+					//alert("a");
+						var results = response.Success;
+
+						$("#tabcontent").css({"height":"550px","overflow":"hidden","overflow-y":"scroll"});
+						for(var id in results) {
+							var temp = `<div>Location: ${results[id].locationName}</div> <div> ${results[id].Date} 
+							</div> <div>${results[id].StartTime} </div> <div>${results[id].EndTime} </div> <div>${results[id].NumberOfPeople} </div>
+							<div>${results[id].Status} </div> <div> <button class="btn btn-primary" id = "btn_all_request" value=${results[id]._id} onclick="copyURl(this)">Share</button> </div> <br>`
+							
+							if(location==="All" || (results[id].Status === 'Pending' && results[id].locationName===location)) {
+								$("#tabcontent").append(temp)
+							}
+						}
+
+						for(var id in results) {
+							var temp = `<div>Location: ${results[id].locationName}</div> <div> ${results[id].Date} 
+							</div> <div>${results[id].StartTime} </div> <div>${results[id].EndTime} </div> <div>${results[id].NumberOfPeople} </div>
+							<div>${results[id].Status} </div> <div> <button class="btn btn-primary" id = "btn_all_request" value=${results[id]._id} onclick="copyURl(this)">Share</button> </div><br>`
+							
+							if(location==="All" || (results[id].Status === 'Approved' && results[id].locationName===location)) {
+								$("#tabcontent").append(temp)
+							}
+						}
+						
+					},
+					error: function() {}
+				})
+
+		}
+
+		function populate() {
+			$.ajax({
+				type: 'GET',
+				url: '/getCurrentUserRequests',
+				dataType: "json",
+				success: function(response){
+					//alert("a");
+						var results = response.Success;
+						$("#tabcontent").empty();
+						$("#tabcontent").append(`<label class = "labelForLoc" for="location">Select location: </label>
+						<select class = "labelForLoc" name="filter" id="FilterForRequests" onchange="funcToPopulateMyRequests()" required>
+						<option class = "labelForLoc" value="All" selected>All</option>
+						<option class = "labelForLoc" value="Bangalore">Bangalore</option>
+						<option class = "labelForLoc" value="Delhi">Delhi</option>
+						<option class = "labelForLoc" value="Mumbai">Mumbai</option>
+						</select>`);
+
+
+						// overflow:hidden; overflow-y:scroll;
+						$("#tabcontent").css({"height":"550px","overflow":"hidden","overflow-y":"scroll"});
+						for(var id in results) {
+							var temp = `<div><strong>Location:</strong> ${results[id].locationName}</div> <div><strong>Date:</strong> ${results[id].Date} 
+							</div> <div><strong>Start Time:</strong>${results[id].StartTime} </div> <div><strong>End time: </strong>${results[id].EndTime} </div> <div><strong>People:</strong>${results[id].NumberOfPeople} </div>
+							<div><strong> Status: </strong>${results[id].Status} </div> <div> <button class="btn btn-primary" id = "btn_all_request" value=${results[id]._id} onclick="copyURl(this)">Share</button> </div> <br>`
+							
+							if(results[id].Status === 'Pending') {
+								$("#tabcontent").append(temp)
+							}
+						}
+
+						for(var id in results) {
+							var temp = `<div><strong>Location:</strong> ${results[id].locationName}</div> <div><strong>Date:</strong> ${results[id].Date} 
+							</div> <div><strong>Start Time:</strong>${results[id].StartTime} </div> <div><strong>End time: </strong>${results[id].EndTime} </div> <div><strong>People:</strong>${results[id].NumberOfPeople} </div>
+							<div><strong> Status: </strong>${results[id].Status} </div> <div> <button class="btn btn-primary" id = "btn_all_request" value=${results[id]._id} onclick="copyURl(this)">Share</button> </div> <br>`
+							
+							if(results[id].Status === 'Approved') {
+								$("#tabcontent").append(temp)
+							}
+						}
+						
+					},
+					error: function() {}
+				})
+		}
+
+		function onCall() {
+			$.ajax({
+				type: 'GET',
+				url: '/allLocationData',
+				dataType: "json",
+				success: function(response){
+					//alert("a");
+						$("#actualData").empty()
+						$("#actualData").css({"height":"500px","overflow":"hidden","overflow-y":"scroll"});
+						for(var resp in response) {
+							var temp = `<br><div><div><strong>Location :</strong> ${response[resp].locationName} <br></div>
+							<div><strong>Total Number Of Rooms :</strong> ${response[resp].NumberOfRooms} <br></div>
+							<div><strong>Available Rooms : </strong>${response[resp].RemainingRooms} <br></div></div><br><br>`
+							$('#actualData').append(temp);
+						}
+
+						
+					},
+					error: function() {}
+				})
+		}
+
+		function checkFun() {
+
+			var location = document.getElementById("filter").value;
+			if(location == "All") {
+				return onCall()
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: '/filteredData',
+				data: {
+					"location": location
+				},
+				dataType: "json",
+				success: function(response){
+					//alert("a");
+					$("#actualData").empty()
+						console.log(response);
+
+						for(var resp in response) {
+							var temp = `<br><div><div><strong>Location :</strong> ${response[resp].locationName} <br></div>
+							<div><strong>Total Number Of Rooms : </strong>${response[resp].NumberOfRooms} <br></div>
+							<div><strong>Available Rooms :</strong> ${response[resp].RemainingRooms} <br></div></div><br><br>`
+							$('#actualData').append(temp);
+						}
+
+						
+					},
+					error: function() {}
+				})
+
+		}
+
+		$(document).ready(function(){
+
+			onCall();
+
+			$("#btn_all_request").click(()=> {
+				if(document.getElementById("tabcontent").style.display !=='none') {
+					document.getElementById("tabcontent").style.display = 'none'
+				}
+				else {
+					populate();
+					document.getElementById("tabcontent").style.display = 'block'
+				}
+				
+
+			});
+
+		});
+
+	</script>
+
+
+</head>
+
+<body>
+	<div class="col-md-4 col-md-offset-4">
+		<div id = "LocationData">
+			<div id = "actualData">
+
+			</div>
+		</div>
+		<div>
+			
+				<table class="table table-hover text-center">
+					<a  id="req_align" href = "\postRequest">New Meeting Request</a>
+				</table>
+			
+		</div>
+		<div>
+			<label for="location">Select location: </label>
+			<select name="filter" id="filter" onchange="checkFun()" required>
+				<option value="All" selected>All</option>
+				<option value="Bangalore">Bangalore</option>
+				<option value="Delhi">Delhi</option>
+				<option value="Mumbai">Mumbai</option>
+			</select>
+		</div>
+
+		<div id = "alignbtn">
+		<button id = "btn_all_request" value = "show/hide">Show all requests</button>
+		<div id="tabcontent" style="display: none;">
+		</div>
+		</div>
+
+	</div>
+		
+			<div class="abc">
+				<a href="/logout">Logout</a>
+			</div>
+		
+
+	
+</body>
+</html>

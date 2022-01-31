@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Request</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/item.css">
+
+	<script type="text/javascript">
+        
+        function funApprove(val) {
+            var ID = ($(val).attr('value'))
+            var Date = $("#date").attr('value');
+            var StartTime = $("#startTime").attr('value');
+            var Location = $("#location").attr('value');
+            var userID = $("#userID").attr("value");
+            console.log(userID)
+
+            $.ajax({
+				type: 'POST',
+				url: '/searchRecords',
+				data: {
+                    "Date": Date.toString(),
+                    "StartTime": StartTime.toString(),
+					"Location": Location.toString()
+				},
+				dataType: "json",
+				success: function(response){
+						if(response.Success === false) {
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '/checkRoomsAvailable',
+                                data: {
+                                    "Location": Location.toString()
+                                },
+                                dataType: "json",
+                                success: function(response){
+                                        if(response.Success === false) {
+                                            alert("Meeting room is full. Try requesting for the other dates");
+                                            //redirect to profile page
+                                            document.getElementById("MoveToProfilePage").click()
+                                        }
+                                        else {
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '/updateCollections',
+                                                data: {
+                                                    "ID": ID.toString(),
+                                                    "userID": userID.toString(),
+                                                    "Location": Location.toString()
+                                                },
+                                                dataType: "json",
+                                                success: function(response){
+                                                    // Add button click to move to profile page
+                                                    alert("Successfully approved")
+                                                    document.getElementById("MoveToProfilePage").click()
+                                                },
+                                                error: function() {}
+                                            })
+                                        }
+                                    },
+                                    error: function() {}
+                                })
+
+                        }
+                        else {
+                            var existedRequestID = response.Data._id;
+                            // To Do
+                            // make ajax call to get meeting room already alloted to the any of the previous room 
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '/reallotRoom',
+                                                data: {
+                                                    "ID": ID.toString(),
+                                                    "userID": userID.toString(),
+                                                    "existedRequestID": existedRequestID.toString()
+                                                },
+                                                dataType: "json",
+                                                success: function(response){
+                                                                    // Add button click to move to profile page
+                                                    // document.getElementById("MoveToProfilePage").click()
+                                                    alert("Successfully approved")
+                                                    document.getElementById("MoveToProfilePage").click()
+                                                },
+                                                error: function() {}
+                                            })
+
+                        }
+					},
+					error: function() {}
+				})
+            
+        }
+
+        $(document).ready(function(){
+
+            
+
+        });
+
+	</script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="Reg_form" >
+                    <div class="card">
+                        <div id="location" class="form-control" value = <%= data1.locationName %>> <strong>Location:</strong> <br><%= data1.locationName %> </div>
+                        <div id="date" class="form-control" value = <%= data1.Date %>> <strong>Date:</strong> <br> <%= data1.Date %> </div>
+                        <div  id="startTime" class="form-control" value = <%= data1.StartTime %>> <strong>Start Time:</strong> <br> <%= data1.StartTime %> </div>
+                        <div id="endTime" class="form-control"> <strong>End Time:</strong> <br> <%= data1.EndTime %> </div>
+                        <div class="form-control"> <strong>Purpose:</strong> <br> <%= data1.Purpose %> </div>
+                        <div class="form-control"> <strong>Cost:</strong> <br> <%= data1.Cost %> </div>
+                        <div class="form-control"> <strong>Purpose:</strong> <br> <%= data1.Purpose %> </div>
+                        <div class="form-control"> <strong>Number of people:</strong> <br> <%= data1.NumberOfPeople %> </div>
+                        <div class="form-control"> <strong>Details:</strong> <br> <%= data1.Details %> </div>
+                        <div class="form-control" id="col-statusCheck" value = <%= data1.Status %> > <strong>Status:</strong> <br> <%= data1.Status %> </div>
+                        <div><a id = "MoveToProfilePage" href="/profile"></a></div>
+                        <div class="border border-light p-3 mb-4">
+                            <button class="btn btn-primary" id="btn-approve" style="margin-top: 10px;" value = <%= data1._id %> onclick="funApprove(this)">Approve</button>
+                        </div>
+                        
+                        <h1 id = "userID" value = <%= data1.userId %> ></div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
